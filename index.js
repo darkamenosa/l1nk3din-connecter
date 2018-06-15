@@ -125,7 +125,7 @@ async function main() {
   }
 
   const endTime = Date.now();
-  console.log('Total time: ' + calculateTime(startBlock, endBlock) +'s') 
+  console.log('Total time: ' + calculateTime(startTime, endTime) +'s') 
   console.log('Done!');
   await browser.close();
 }
