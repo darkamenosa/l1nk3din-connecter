@@ -90,44 +90,49 @@ async function main() {
     headless: dev ? false : true,
   });
 
-  const page = await browser.newPage();
+  try {
+    const page = await browser.newPage();
+    
+    console.log('Go to linkedin.');
+    await page.goto('https://www.linkedin.com/');
 
-  console.log('Go to linkedin.');
-  await page.goto('https://www.linkedin.com/');
 
+    console.log('Login linkedin.');
+    const usernameSelector = '#login-email';
+    const passwordSelector = '#login-password';
+    await page.type(usernameSelector, USER_NAME);
+    await page.type(passwordSelector, PASSWORD);
+    await page.click('#login-submit');
 
-  console.log('Login linkedin.');
-  const usernameSelector = '#login-email';
-  const passwordSelector = '#login-password';
-  await page.type(usernameSelector, USER_NAME);
-  await page.type(passwordSelector, PASSWORD);
-  await page.click('#login-submit');
+    console.log('Click network tab.');
+    const networkTabSelector = '#mynetwork-tab-icon';
+    await page.waitForSelector(networkTabSelector);
+    await page.click(networkTabSelector);
+   
+    const connectButtonSelector = '.button-secondary-small';
 
-  console.log('Click network tab.');
-  const networkTabSelector = '#mynetwork-tab-icon';
-  await page.waitForSelector(networkTabSelector);
-  await page.click(networkTabSelector);
- 
-  const connectButtonSelector = '.button-secondary-small';
+    const startTime = Date.now();
+    console.log('Start clicking [Connect] buttons ...');
 
-  const startTime = Date.now();
-  console.log('Start clicking [Connect] buttons ...');
+    for (let i = 0; i < ITERATION; i++) {
+      const startBlock = Date.now();
 
-  for (let i = 0; i < ITERATION; i++) {
-    const startBlock = Date.now();
+      await page.waitForSelector(connectButtonSelector);
+      await page.evaluate(invite)
+      await page.reload(invite)
 
-    await page.waitForSelector(connectButtonSelector);
-    await page.evaluate(invite)
-    await page.reload(invite)
+      const endBlock = Date.now();
+      console.log(`Loop: ${i + 1}/${ITERATION} - last: ${calculateTime(startBlock, endBlock)}s`)
+    }
 
-    const endBlock = Date.now();
-    console.log(`Loop: ${i + 1}/${ITERATION} - last: ${calculateTime(startBlock, endBlock)}s`)
+    const endTime = Date.now();
+    console.log('Total time: ' + calculateTime(startTime, endTime) +'s') 
+    console.log('Done!');
+    await browser.close();
+  } catch(error) {
+    console.error(error);
+    await browser.close();
   }
-
-  const endTime = Date.now();
-  console.log('Total time: ' + calculateTime(startTime, endTime) +'s') 
-  console.log('Done!');
-  await browser.close();
 }
 
 main();
