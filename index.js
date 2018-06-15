@@ -9,6 +9,10 @@ const NODE_ENV  = process.env.NODE_ENV;
 const USER_NAME = process.env.USER_NAME;
 const PASSWORD  = process.env.PASSWORD;
 const ITERATION = process.env.ITERATION || 30;
+const DOCKER = process.env.DOCKER;
+
+console.log("USER_NAME: " + USER_NAME)
+console.log("DOCKER: " + DOCKER)
 
 const dev = NODE_ENV === 'development';
 
@@ -86,13 +90,22 @@ async function main() {
     `Start connecting user LinkedIn, on: ${new Date().toString()}`
   );
 
+  const dockerLaunchOptions = DOCKER ? 
+              {
+                args: [
+                  '--no-sandbox',
+                  '--disable-setuid-sandbox'
+                ],
+              } : {};
+
   const browser = await puppeteer.launch({
     headless: dev ? false : true,
+    ...dockerLaunchOptions
   });
 
   try {
     const page = await browser.newPage();
-    
+
     console.log('Go to linkedin.');
     await page.goto('https://www.linkedin.com/');
 
